@@ -16,21 +16,13 @@ int map_insert(map_t *map, const char *key, const void *value)
     map_entry_t *entry = map->buckets[idx];
     map_entry_t *new_entry;
 
-    while (entry) {
-        if (strcmp(entry->key, key) == 0) {
-            memcpy(entry->value, value, map->child_size);
-            return 0;
-        }
-        entry = entry->next;
-    }
+    for (; entry; entry = entry->next)
+        if (strcmp(entry->key, key) == 0)
+            return memcpy(entry->value, value, map->child_size), 0;
     new_entry = malloc(sizeof(map_entry_t));
-    if (!new_entry)
-        return -1;
-    new_entry->key = strdup(key);
-    new_entry->value = malloc(map->child_size);
-    if (!new_entry->key || !new_entry->value) {
-        free(new_entry->key);
-        free(new_entry->value);
+    if (!new_entry || !(new_entry->key = strdup(key))
+        || !(new_entry->value = malloc(map->child_size))) {
+        if (new_entry) free(new_entry->key);
         free(new_entry);
         return -1;
     }

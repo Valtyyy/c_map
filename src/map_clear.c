@@ -14,13 +14,11 @@ void map_clear(map_t *map)
     map_entry_t *next;
 
     for (size_t i = 0; i < map->bucket_count; i++) {
-        entry = map->buckets[i];
-        while (entry) {
+        for (entry = map->buckets[i]; entry; entry = next) {
             next = entry->next;
             free(entry->key);
             free(entry->value);
             free(entry);
-            entry = next;
         }
         map->buckets[i] = NULL;
     }
